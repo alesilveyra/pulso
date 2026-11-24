@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulso · Club de inversores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0B2545; --blue:#13315C; --sky:#1E88E5; --sky-soft:#E3F0FC; --ice:#F4F8FC;
+  --ink:#14213D; --muted:#5B6B82; --line:#DCE5EF; --card:#FFFFFF;
+  --up:#1F9D6B; --down:#D64545; --up-soft:#E5F6EE; --down-soft:#FCE9E9; --gold:#E0A526;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--ice);line-height:1.55;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;line-height:1.2;margin:0}
+a{color:var(--sky)}
+/* header */
+.top{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:26px 0 0}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+.logo .dot{width:34px;height:34px;border-radius:10px;background:var(--sky);display:grid;place-items:center;font-family:"Source Serif 4",serif;font-size:20px}
+.logo small{display:block;font-weight:500;opacity:.75;font-size:12px;letter-spacing:.6px;text-transform:uppercase}
+.badge{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:5px 10px;border-radius:999px}
+.hero{padding:22px 0 18px}
+.hero .eje{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#9CC8F2;font-weight:600}
+.hero h1{font-size:30px;margin-top:6px}
+.hero p{margin:8px 0 0;opacity:.85;max-width:640px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:0;background:rgba(255,255,255,.08);color:#cfe0f3;font:600 13px Inter,sans-serif;padding:10px 14px;border-radius:10px 10px 0 0;cursor:pointer}
+.tab small{display:block;font-weight:500;font-size:11px;opacity:.8}
+.tab[aria-selected=true]{background:var(--ice);color:var(--navy)}
+.tab:disabled{opacity:.4;cursor:default}
+/* progress */
+.steps{position:sticky;top:0;z-index:5;background:rgba(244,248,252,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.steps .wrap{display:flex;gap:6px;padding-top:10px;padding-bottom:10px;align-items:center}
+.step{flex:1;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600;text-decoration:none;min-width:0}
+.step i{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:11px;background:#fff}
+.step span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step.done i{background:var(--up);border-color:var(--up);color:#fff}
+.step.done{color:var(--ink)}
+.timer{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:600}
+@media (max-width:560px){.step span{display:none}.step{flex:0 0 auto}.steps .wrap{justify-content:space-between}}
+/* sections */
+section.block{margin:26px 0}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.sec-h .n{font:700 13px Inter,sans-serif;color:var(--sky);letter-spacing:1px}
+.sec-h h2{font-size:24px}
+.sec-h .min{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.news{display:grid;gap:10px}
+.news .card{padding:15px 16px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:var(--sky-soft);color:var(--blue);margin-bottom:6px}
+.tag.ar{background:#E8F4FD;color:#0B6FB8}.tag.br{background:#E9F7EC;color:#1E7B3A}.tag.us{background:#EEF0FB;color:#3B4BA8}.tag.geo{background:#FDF3E3;color:#9A6200}.tag.fx{background:#F2EEFB;color:#6A3FB5}
+.news h3{font-family:Inter,sans-serif;font-size:16px;font-weight:700;margin-bottom:4px}
+.news p{margin:0;color:#2B3A55;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:600}
+.kpi .v{font-size:22px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}
+.chart-card{margin-top:12px}
+.chart-card h3{font-family:Inter,sans-serif;font-size:15px;font-weight:700}
+.chart-card .sub{font-size:13px;color:var(--muted);margin:2px 0 10px}
+.chart-box{position:relative;height:250px}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.agenda{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.agenda li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.agenda b{flex:0 0 92px;font-size:12px;color:var(--sky);text-transform:uppercase;letter-spacing:.5px;padding-top:2px}
+.prose p{margin:0 0 12px}
+.prose p:last-child{margin-bottom:0}
+.prose h3{font-family:Inter,sans-serif;font-size:16px;font-weight:700;margin:16px 0 6px}
+.takeaways{background:var(--navy);color:#fff;border-radius:var(--r);padding:16px 18px;margin-top:14px}
+.takeaways h3{font-family:Inter,sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#9CC8F2;margin-bottom:8px}
+.takeaways ul{margin:0;padding-left:18px}
+.takeaways li{margin:4px 0}
+.term{border-bottom:1.5px dotted var(--sky);cursor:help;position:relative;white-space:nowrap}
+.term:hover::after,.term:focus::after{content:attr(data-def);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:240px;white-space:normal;background:var(--navy);color:#fff;font-size:13px;font-weight:500;line-height:1.4;padding:9px 11px;border-radius:9px;z-index:20;box-shadow:0 8px 24px rgba(11,37,69,.25)}
+.term:focus{outline:none}
+/* widget */
+.widget{margin-top:14px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,#fff,#F7FAFE);padding:18px}
+.widget h3{font-family:Inter,sans-serif;font-size:15px;font-weight:700}
+.widget .sub{font-size:13px;color:var(--muted);margin:2px 0 14px}
+.ctrl{margin:12px 0}
+.ctrl label{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.ctrl label output{font-variant-numeric:tabular-nums;color:var(--blue)}
+input[type=range]{width:100%;accent-color:var(--sky);margin-top:6px}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.res .box{border-radius:12px;padding:12px 14px;background:#fff;border:1px solid var(--line)}
+.res .box .l{font-size:12px;font-weight:600;color:var(--muted)}
+.res .box .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.bar-split{display:flex;height:16px;border-radius:8px;overflow:hidden;margin-top:8px;background:var(--line)}
+.bar-split div{height:100%}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:600 13px Inter,sans-serif;color:var(--blue);cursor:pointer}
+.chip:hover{border-color:var(--sky)}
+/* client box */
+.dialog{display:grid;gap:10px}
+.bubble{border-radius:16px;padding:12px 15px;max-width:88%;font-size:15px}
+.bubble.q{background:#fff;border:1px solid var(--line);justify-self:start;border-bottom-left-radius:4px}
+.bubble.a{background:var(--sky);color:#fff;justify-self:end;border-bottom-right-radius:4px}
+.bubble small{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.7;margin-bottom:3px}
+.watch{margin-top:12px;background:#FFF8EA;border:1px solid #F3DDAA;border-radius:12px;padding:12px 14px;font-size:14px}
+.watch b{color:#8A5A00}
+/* quiz */
+.qz{margin-bottom:12px}
+.qz .qn{font-size:12px;font-weight:700;color:var(--sky);letter-spacing:.6px;text-transform:uppercase}
+.qz h3{font-family:Inter,sans-serif;font-size:16px;font-weight:700;margin:4px 0 12px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:11px 14px;font:500 15px Inter,sans-serif;color:var(--ink);cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.opt .k{flex:0 0 24px;height:24px;border-radius:7px;background:var(--ice);display:grid;place-items:center;font-weight:700;font-size:12px;color:var(--blue)}
+.opt:hover:not(:disabled){border-color:var(--sky)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--up);background:var(--up-soft)}
+.opt.ok .k{background:var(--up);color:#fff}
+.opt.bad{border-color:var(--down);background:var(--down-soft)}
+.opt.bad .k{background:var(--down);color:#fff}
+.why{margin-top:10px;font-size:14px;background:var(--ice);border-radius:10px;padding:10px 12px;display:none}
+.why.show{display:block}
+.score{text-align:center;padding:20px}
+.score .big{font-size:42px;font-weight:700;font-family:"Source Serif 4",serif}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+@media (max-width:560px){.form-row{grid-template-columns:1fr}}
+input[type=text],input[type=email]{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font:500 15px Inter,sans-serif;color:var(--ink);background:#fff}
+input:focus{outline:none;border-color:var(--sky)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:11px;padding:12px 18px;font:700 15px Inter,sans-serif;background:var(--sky);color:#fff;cursor:pointer;text-decoration:none}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--line)}
+.btn[aria-disabled=true]{opacity:.45;pointer-events:none}
+.muted{color:var(--muted);font-size:13px}
+/* ranking */
+table.rank{width:100%;border-collapse:collapse;font-size:15px}
+table.rank th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+table.rank td{padding:10px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.rank td.pos{font-weight:700;color:var(--blue);width:44px}
+table.rank tr.me td{background:var(--sky-soft)}
+.medal{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:700;color:#fff}
+.empty{text-align:center;padding:22px 10px;color:var(--muted)}
+.cta{background:linear-gradient(135deg,var(--sky),#1565C0);color:#fff;border-radius:var(--r);padding:18px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.cta h3{font-family:Inter,sans-serif;font-size:17px}
+.cta p{margin:2px 0 0;opacity:.9;font-size:14px}
+.cta .btn{background:#fff;color:var(--blue)}
+.sources{font-size:13px;color:var(--muted)}
+.sources ol{padding-left:18px;margin:6px 0 0}
+.sources li{margin:3px 0}
+footer{padding:26px 0 40px;font-size:12px;color:var(--muted);text-align:center}
+.soon{text-align:center;padding:40px 14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<script id="course-data" type="application/json">{"audience": "clientes", "brand": {"name": "Pulso", "sub": "Silveyra Inversiones", "badge": "Club de inversores · nivel inicial"}, "footer": "Pulso es un contenido educativo de Silveyra Inversiones. No es una recomendación de inversión. Sale todos los días hábiles a la mañana.", "signup": {"title": "Sumate al desafío de 5 minutos", "text": "Inscribite gratis, te llega el link por mail y vas sumando puntos día a día.", "button": "Quiero participar"}, "forms": {"signupUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdm2nJzOrhayVkYeyw5cJv-dOsHWF3p1a_Gi7zEqYV9TTkuhw/viewform", "answersUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfvp-cW24S13OyYheg05MzKSEczsSlXF_SuTo-48sYYMlVTWg/viewform", "entries": {"name": "entry.1954349444", "email": "entry.1533113758", "day": "entry.1472848570", "answers": "entry.1623448608"}}, "ranking": {"updated": "Arranca el lunes 30/11", "salt": "pulso-si-2026:", "rows": []}, "week": [{"id": "2026-11-23", "label": "Lun 23", "eje": "El mundo"}, {"id": "2026-11-24", "label": "Mar 24", "eje": "Bonos"}, {"id": "2026-11-25", "label": "Mié 25", "eje": "Acciones"}, {"id": "2026-11-26", "label": "Jue 26", "eje": "Argentina"}, {"id": "2026-11-27", "label": "Vie 27", "eje": "Tu plan"}], "days": [{"id": "2026-11-24", "dateLabel": "Martes 24 de noviembre", "eje": "Bonos", "title": "¿Por qué cuando sube el riesgo país, tus bonos valen menos?", "lead": "El riesgo país pasó los 1.000 puntos y ayer aflojó un poco: hoy te contamos qué tiene que ver eso con el precio de un bono.", "minutes": {"news": 2, "concept": 2, "quiz": 1}, "kpis": [{"l": "Riesgo país", "v": "1.027", "d": "bajó 43 puntos", "dir": "up"}, {"l": "S&P 500", "v": "+4,7%", "d": "rebote fuerte", "dir": "up"}], "news": [{"tag": "El mundo", "tagClass": "us", "title": "Nvidia repuso a su fundador como CEO y la acción voló 31%", "body": "Jensen Huang había renunciado el 12 de noviembre y ayer el directorio lo repuso como CEO. Nvidia es una de las empresas más grandes del mundo, así que arrastró a todo Wall Street: el {{S&P 500|Índice que sigue a 500 de las empresas más grandes de EE.UU.}} subió 4,7% y cortó siete días seguidos de caídas."}, {"tag": "Argentina", "tagClass": "ar", "title": "El riesgo país aflojó, pero sigue arriba de 1.000", "body": "Ayer cerró en 1.027 puntos, 43 menos que el viernes, con subas de bonos y acciones argentinas en Nueva York. Igual, en noviembre acumula una suba de casi 30%, y en julio estaba en 430."}, {"tag": "Dólar", "tagClass": "fx", "title": "Hoy vuelve a operar el mercado local", "body": "Por el feriado del lunes, el Merval y el dólar no se movieron. El viernes el {{dólar MEP|El dólar que comprás legalmente a través de bonos en tu cuenta de inversión.}} cerró en $1.683 y el oficial en $1.595 en el Banco Nación."}], "charts": [{"type": "line", "title": "Riesgo país: de 430 a más de 1.000 en cuatro meses", "sub": "Puntos. Cuanto más alto, más desconfianza en Argentina.", "labels": ["Jul", "Ago", "Sep", "Oct", "20/11", "23/11"], "series": [{"name": "Riesgo país", "data": [430, 512, 607, 787, 1070, 1027]}], "unit": "puntos", "fill": true, "note": "Cierres de mes (julio aprox.) y de los días indicados. Fuente: JP Morgan vía La Gaceta, El Esquiú y Agencia Nova."}], "agenda": [], "concept": {"title": "Por qué el precio de un bono baja cuando sube la tasa", "blocks": [{"p": "Un {{bono|Un préstamo que le hacés a un gobierno o empresa a cambio de que te devuelva la plata con intereses.}} es una promesa de pago. Imaginá uno que dentro de un año te paga US$100 fijos. Lo que se negocia hoy es cuánto pagás por esa promesa."}, {"p": "Si el mercado confía y le alcanza con ganar 5% al año, ese bono vale unos **US$95**. Si desconfía y pide 15%, nadie paga más de **US$87**. La promesa es la misma: los US$100 no cambian. Lo que baja es el precio de entrada, para que el que compra gane más."}, {"chart": {"type": "bar", "title": "Mismo bono, distinta desconfianza", "sub": "Precio hoy de un bono que paga US$100 en un año (ejemplo).", "labels": ["Pide 5%", "Pide 10%", "Pide 15%"], "series": [{"name": "Precio", "data": [95.2, 90.9, 87.0]}], "unit": "US$", "beginAtZero": true, "note": "Ejemplo numérico ilustrativo, no es un bono real."}}, {"p": "El {{riesgo país|Cuánto más que EE.UU. le piden a Argentina para prestarle. 1.000 puntos = 10% más por año.}} mide justamente esa desconfianza. Por eso, cuando sube, los bonos argentinos bajan de precio. Al que los tiene le duele en el resumen; al que los mantiene hasta el final y el emisor paga, le terminan pagando lo prometido."}], "takeaways": ["Precio y tasa van al revés: si el mercado pide más interés, el bono vale menos hoy.", "Más riesgo país es más desconfianza, y eso se ve en precios más bajos de los bonos argentinos."]}, "quiz": [{"q": "Un bono paga US$100 dentro de un año. Si el mercado pasa a pedirle más interés, ¿qué pasa con su precio hoy?", "options": ["Sube, porque paga más intereses", "Baja, para que el que compra gane más", "Queda igual, porque el pago no cambia", "Depende del dólar oficial"], "answer": 1, "why": "El pago futuro es fijo. La única forma de que el comprador gane más es pagando menos hoy, así que el precio **baja**."}, {"q": "Si mañana el riesgo país bajara de 1.027 a 900 puntos, ¿qué esperarías para los bonos argentinos?", "options": ["Que bajen de precio", "Que no se muevan", "Que suban de precio", "Que dejen de pagar intereses"], "answer": 2, "why": "Menos riesgo país es menos desconfianza: el mercado pide menos interés y eso se traduce en **precios más altos**. Ojo, nada garantiza que baje."}, {"q": "¿Qué hizo saltar a Wall Street el lunes 23?", "options": ["Una baja de tasas de la Fed", "Un acuerdo comercial con China", "La suba del petróleo", "Nvidia repuso a Jensen Huang como CEO"], "answer": 3, "why": "El directorio de Nvidia volvió a nombrar a su fundador, la acción subió 31% y arrastró al S&P 500 a una suba de 4,7%."}], "sources": [{"t": "El Esquiú – El riesgo país bajó 4%", "u": "https://www.elesquiu.com/economia/2026/11/23/el-riesgo-pais-bajo-4-pero-se-mantiene-por-encima-de-los-1000-puntos-604526.html"}, {"t": "Agencia Nova – Riesgo país sigue arriba de mil", "u": "https://www.agencianova.com/economia-y-empresas/2026/11/23/175649/subio-como-pedo-de-buzo-y-no-bajo-mas-el-riesgo-pais-sigue-arriba-de-los-mil-puntos-a-pesar-del-repunte-de-los-bonos/"}, {"t": "La Gaceta – De 400 a más de 1.000 en cuatro meses", "u": "https://www.lagaceta.com.ar/nota/1163534/economia/riesgo-pais-se-disparo-400-mas-1000-puntos-cuatro-meses-razones-detras-desplome-bonos-argentinos.html"}, {"t": "Ámbito – Dólar hoy, viernes 20 de noviembre", "u": "https://www.ambito.com/finanzas/dolar-hoy-cuanto-cerro-este-viernes-20-noviembre-n6347715"}, {"t": "AP vía Yahoo Finance – Índices de EE.UU. el 23/11", "u": "https://finance.yahoo.com/markets/world-indices/articles/major-us-stock-indexes-fared-213053319.html"}, {"t": "Nvidia – Comunicado 23/11 (SEC)", "u": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000090/nov23pressrelease.htm"}, {"t": "StockTitan – Mercado 23/11", "u": "https://www.stocktitan.net/articles/stock-market-today-live-november-23-2026"}]}], "state": {"answerKeys": {"2026-11-24": [1, 2, 3]}, "players": {}, "processed": [], "welcomed": [], "unsubscribed": [], "concepts": [{"date": "2026-11-24", "title": "Por qué el precio de un bono baja cuando sube la tasa"}], "fridayBlock": 0}}</script>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo"><div class="dot">P</div><div><span id="brandName"></span><small id="brandSub"></small></div></div>
+      <span class="badge" id="audBadge"></span>
+    </div>
+    <div class="hero">
+      <div class="eje" id="heroEje"></div>
+      <h1 id="heroTitle"></h1>
+      <p id="heroLead"></p>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </div>
+</header>
+
+<div class="steps"><div class="wrap" id="steps"></div></div>
+
+<main class="wrap" id="main"></main>
+
+<footer class="wrap" id="foot"></footer>
+
+<script>
+(function(){
+"use strict";
+var DATA = JSON.parse(document.getElementById('course-data').textContent);
+var isAdv = DATA.audience === 'asesores';
+var store = {
+  get:function(k){try{return JSON.parse(localStorage.getItem('pulso:'+k))}catch(e){return null}},
+  set:function(k,v){try{localStorage.setItem('pulso:'+k,JSON.stringify(v))}catch(e){}}
+};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+// **bold**, {{term|definition}}
+function md(s){
+  var h = esc(s);
+  h = h.replace(/\{\{([^|}]+)\|([^}]+)\}\}/g,function(_,t,d){return '<span class="term" tabindex="0" data-def="'+d+'">'+t+'</span>'});
+  h = h.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  return h;
+}
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function fmtPct(v){var s=(v>0?'+':'')+v.toFixed(1).replace('.',',')+'%';return s}
+
+document.getElementById('brandName').textContent = DATA.brand.name;
+document.getElementById('brandSub').textContent = DATA.brand.sub;
+document.getElementById('audBadge').textContent = DATA.brand.badge;
+document.getElementById('foot').innerHTML = md(DATA.footer||'');
+
+var days = DATA.days;
+var current = days.length-1;
+var h = (location.hash||'').replace('#','');
+days.forEach(function(d,i){ if(d.id===h) current=i; });
+
+// tabs: Mon-Fri of the week
+var tabs = document.getElementById('tabs');
+DATA.week.forEach(function(w){
+  var idx = -1; days.forEach(function(d,i){ if(d.id===w.id) idx=i; });
+  var b = el('button','tab','<span>'+esc(w.label)+'</span><small>'+esc(w.eje)+'</small>');
+  b.setAttribute('role','tab');
+  if(idx<0){ b.disabled = true; }
+  else { b.addEventListener('click',function(){ current=idx; history.replaceState(null,'','#'+days[idx].id); render(); window.scrollTo({top:0}); }); }
+  b.dataset.idx = idx;
+  tabs.appendChild(b);
+});
+
+var charts = [];
+var observer = null;
+
+function render(){
+  var d = days[current];
+  Array.prototype.forEach.call(tabs.children,function(b){ b.setAttribute('aria-selected', String(+b.dataset.idx===current)); });
+  document.getElementById('heroEje').textContent = d.dateLabel+' · '+d.eje;
+  document.getElementById('heroTitle').textContent = d.title;
+  document.getElementById('heroLead').textContent = d.lead;
+  charts.forEach(function(c){c.destroy()}); charts=[];
+  if(observer) observer.disconnect();
+
+  var main = document.getElementById('main'); main.innerHTML='';
+  var sections = [
+    {id:'s-news', n:'01', t:'Lo que pasó', min:d.minutes.news},
+    {id:'s-concept', n:'02', t:'Concepto del día', min:d.minutes.concept},
+    {id:'s-client', n:'03', t: isAdv?'Bajalo al cliente':'Y esto, ¿qué tiene que ver con mi plata?', min:d.minutes.client},
+    {id:'s-quiz', n:'04', t:'Quiz', min:d.minutes.quiz}
+  ];
+  if(!d.client){ sections.splice(2,1); }
+  sections.forEach(function(s,i){ s.n='0'+(i+1); });
+  var secById = {}; sections.forEach(function(s){ secById[s.id]=s; });
+  // steps bar
+  var steps = document.getElementById('steps'); steps.innerHTML='';
+  var done = store.get('done:'+DATA.audience+':'+d.id)||{};
+  sections.forEach(function(s){
+    var a = el('a','step'+(done[s.id]?' done':''),'<i>'+(done[s.id]?'✓':(+s.n))+'</i><span>'+esc(s.t)+'</span>');
+    a.href='#'+d.id; a.dataset.sec=s.id;
+    a.addEventListener('click',function(ev){ev.preventDefault();document.getElementById(s.id).scrollIntoView({behavior:'smooth',block:'start'});});
+    steps.appendChild(a);
+  });
+  var tot = sections.reduce(function(a,s){return a+s.min},0);
+  steps.appendChild(el('span','timer','⏱ '+tot+' min'));
+  function markDone(id){
+    if(done[id]) return; done[id]=true; store.set('done:'+DATA.audience+':'+d.id,done);
+    var a = steps.querySelector('[data-sec="'+id+'"]'); if(a){a.classList.add('done');a.querySelector('i').textContent='✓';}
+  }
+
+  // signup CTA (only if not registered on this device)
+  if(!store.get('registered:'+DATA.audience)){
+    var cta = el('div','cta');
+    cta.innerHTML = '<div><h3>'+esc(DATA.signup.title)+'</h3><p>'+esc(DATA.signup.text)+'</p></div>';
+    var sb = el('a','btn',esc(DATA.signup.button));
+    if(DATA.forms && DATA.forms.signupUrl){ sb.href=DATA.forms.signupUrl; sb.target='_blank'; sb.rel='noopener'; sb.addEventListener('click',function(){store.set('registered:'+DATA.audience,true)}); }
+    else { sb.setAttribute('aria-disabled','true'); sb.textContent='Inscripción: muy pronto'; }
+    cta.appendChild(sb);
+    var wrapCta = el('section','block'); wrapCta.style.marginTop='22px'; wrapCta.appendChild(cta); main.appendChild(wrapCta);
+  }
+
+  function secHead(s){ return '<div class="sec-h"><span class="n">'+s.n+'</span><h2>'+esc(s.t)+'</h2><span class="min">'+s.min+' min</span></div>'; }
+
+  // 01 NEWS
+  var s1 = el('section','block'); s1.id='s-news'; s1.innerHTML = secHead(sections[0]);
+  if(d.kpis && d.kpis.length){
+    var k = el('div','kpis');
+    d.kpis.forEach(function(x){ k.appendChild(el('div','kpi','<div class="l">'+esc(x.l)+'</div><div class="v">'+esc(x.v)+'</div><div class="d '+(x.dir||'')+'">'+esc(x.d||'')+'</div>')); });
+    s1.appendChild(k);
+  }
+  var nw = el('div','news');
+  d.news.forEach(function(n){ nw.appendChild(el('div','card','<span class="tag '+esc(n.tagClass||'')+'">'+esc(n.tag)+'</span><h3>'+md(n.title)+'</h3><p>'+md(n.body)+'</p>')); });
+  s1.appendChild(nw);
+  (d.charts||[]).forEach(function(c){ s1.appendChild(chartCard(c)); });
+  if(d.agenda && d.agenda.length){
+    var ag = el('div','card chart-card','<h3>📅 Para tener en el radar</h3><div class="sub">Lo que viene y puede mover el mercado</div>');
+    var ul = el('ul','agenda'); d.agenda.forEach(function(a){ ul.appendChild(el('li','','<b>'+esc(a.when)+'</b><span>'+md(a.what)+'</span>')); });
+    ag.appendChild(ul); s1.appendChild(ag);
+  }
+  main.appendChild(s1);
+
+  // 02 CONCEPT
+  var s2 = el('section','block'); s2.id='s-concept'; s2.innerHTML = secHead(sections[1]);
+  var cc = el('div','card prose');
+  cc.innerHTML = '<h3 style="font-family:\'Source Serif 4\',serif;font-size:22px;margin:0 0 10px">'+md(d.concept.title)+'</h3>';
+  d.concept.blocks.forEach(function(b){
+    if(b.h) cc.appendChild(el('h3','',md(b.h)));
+    if(b.p) cc.appendChild(el('p','',md(b.p)));
+    if(b.widget) cc.appendChild(widget(b.widget));
+    if(b.chart) cc.appendChild(chartCard(b.chart));
+  });
+  if(d.concept.takeaways){
+    var tk = el('div','takeaways','<h3>Para llevarte</h3>'); var ul2=el('ul');
+    d.concept.takeaways.forEach(function(t){ ul2.appendChild(el('li','',md(t))); }); tk.appendChild(ul2); cc.appendChild(tk);
+  }
+  s2.appendChild(cc); main.appendChild(s2);
+
+  // 03 CLIENT
+  if(d.client){
+  var s3 = el('section','block'); s3.id='s-client'; s3.innerHTML = d.client?secHead(secById['s-client']):'';
+  var c3 = el('div','card');
+  if(d.client.dialog){
+    var dg = el('div','dialog');
+    d.client.dialog.forEach(function(m){ dg.appendChild(el('div','bubble '+(m.who==='cliente'?'q':'a'),'<small>'+esc(m.who==='cliente'?'Cliente':'Vos')+'</small>'+md(m.text))); });
+    c3.appendChild(dg);
+  }
+  if(d.client.paras){ var pr=el('div','prose'); d.client.paras.forEach(function(p){pr.appendChild(el('p','',md(p)))}); c3.appendChild(pr); }
+  if(d.client.watch){ c3.appendChild(el('div','watch','<b>Ojo con esto: </b>'+md(d.client.watch))); }
+  s3.appendChild(c3); main.appendChild(s3);
+  }
+
+  // 04 QUIZ
+  var s4 = el('section','block'); s4.id='s-quiz'; s4.innerHTML = secHead(secById['s-quiz']);
+  var saved = store.get('quiz:'+DATA.audience+':'+d.id)||{};
+  var letters = ['A','B','C','D','E'];
+  var quizBox = el('div');
+  d.quiz.forEach(function(q,qi){
+    var qc = el('div','card qz','<div class="qn">Pregunta '+(qi+1)+' de '+d.quiz.length+'</div><h3>'+md(q.q)+'</h3>');
+    var opts = el('div','opts'); var why = el('div','why','');
+    q.options.forEach(function(o,oi){
+      var b = el('button','opt','<span class="k">'+letters[oi]+'</span><span>'+md(o)+'</span>');
+      b.addEventListener('click',function(){ answer(qi,oi); });
+      opts.appendChild(b);
+    });
+    qc.appendChild(opts); qc.appendChild(why); quizBox.appendChild(qc);
+    qc._opts=opts; qc._why=why;
+  });
+  var scoreBox = el('div','card score'); scoreBox.style.display='none';
+  s4.appendChild(quizBox); s4.appendChild(scoreBox); main.appendChild(s4);
+
+  function paintQ(qi){
+    var q = d.quiz[qi], qc = quizBox.children[qi], ch = saved[qi];
+    if(ch==null) return;
+    Array.prototype.forEach.call(qc._opts.children,function(b,oi){
+      b.disabled=true;
+      if(oi===q.answer) b.classList.add('ok');
+      else if(oi===ch) b.classList.add('bad');
+    });
+    qc._why.innerHTML = '<b>'+(ch===q.answer?'¡Bien! ':'No era esa. ')+'</b>'+md(q.why);
+    qc._why.classList.add('show');
+  }
+  function answer(qi,oi){
+    if(saved[qi]!=null) return;
+    saved[qi]=oi; store.set('quiz:'+DATA.audience+':'+d.id,saved); paintQ(qi); checkEnd();
+  }
+  function checkEnd(){
+    var n = d.quiz.length, answered=0, ok=0;
+    d.quiz.forEach(function(q,i){ if(saved[i]!=null){answered++; if(saved[i]===q.answer) ok++;} });
+    if(answered<n) return;
+    markDone('s-quiz');
+    var pts = ok*10 + (ok===n?5:0);
+    scoreBox.style.display='block';
+    var me = store.get('me')||{};
+    var html = '<div class="muted">Tu resultado de hoy</div><div class="big">'+ok+' / '+n+'</div><div style="font-weight:700;color:var(--blue)">'+pts+' puntos'+(ok===n?' (incluye +5 por día perfecto)':'')+'</div>';
+    html += '<p class="muted" style="max-width:520px;margin:10px auto 0">Para que cuente en el ranking, registrá tu resultado. Usá siempre el mismo mail con el que te inscribiste. Solo vale el primer envío de cada día.</p>';
+    html += '<div class="form-row"><input type="text" id="meName" placeholder="'+(isAdv?'Nombre y apellido':'Nombre o apodo')+'" value="'+esc(me.name||'')+'"><input type="email" id="meMail" placeholder="Tu mail" value="'+esc(me.mail||'')+'"></div>';
+    html += '<div style="margin-top:12px"><a class="btn" id="sendBtn">Registrar mi puntaje ↗</a></div><div class="muted" id="sendNote" style="margin-top:8px"></div>';
+    scoreBox.innerHTML = html;
+    var btn = scoreBox.querySelector('#sendBtn'), note=scoreBox.querySelector('#sendNote');
+    var F = DATA.forms||{};
+    function upd(){
+      var name = scoreBox.querySelector('#meName').value.trim(), mail = scoreBox.querySelector('#meMail').value.trim();
+      store.set('me',{name:name,mail:mail});
+      if(!F.answersUrl){ btn.setAttribute('aria-disabled','true'); note.textContent='El registro de puntajes se activa cuando conectemos el formulario (día 1 del curso).'; return; }
+      var okMail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail);
+      if(!okMail || !name){ btn.setAttribute('aria-disabled','true'); note.textContent='Completá nombre y mail para habilitar el botón.'; return; }
+      btn.removeAttribute('aria-disabled'); note.textContent='Se abre un formulario con tus respuestas ya cargadas: solo tocá “Enviar”.';
+      var e = F.entries, ans = d.quiz.map(function(q,i){return letters[saved[i]]});
+      var u = F.answersUrl + (F.answersUrl.indexOf('?')<0?'?':'&') + 'usp=pp_url'
+        + '&'+e.name+'='+encodeURIComponent(name) + '&'+e.email+'='+encodeURIComponent(mail)
+        + '&'+e.day+'='+encodeURIComponent(d.id)
+        + '&'+e.answers+'='+encodeURIComponent(ans.join(''));
+      btn.href=u; btn.target='_blank'; btn.rel='noopener';
+    }
+    scoreBox.querySelector('#meName').addEventListener('input',upd);
+    scoreBox.querySelector('#meMail').addEventListener('input',upd);
+    upd();
+  }
+  d.quiz.forEach(function(q,i){paintQ(i)}); checkEnd();
+
+  // RANKING
+  var s5 = el('section','block'); s5.id='s-rank';
+  s5.innerHTML = '<div class="sec-h"><span class="n">🏆</span><h2>'+(isAdv?'Ranking del equipo':'Tu lugar en el ranking')+'</h2><span class="min">'+esc(DATA.ranking.updated||'')+'</span></div>';
+  s5.appendChild(isAdv?rankAdv():rankCli()); main.appendChild(s5);
+
+  // SOURCES
+  if(d.sources && d.sources.length){
+    var s6 = el('section','block sources','<b>Fuentes</b>'); var ol=el('ol');
+    d.sources.forEach(function(s){ ol.appendChild(el('li','','<a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.t)+'</a>')); });
+    s6.appendChild(ol); main.appendChild(s6);
+  }
+
+  // progress via scroll
+  if('IntersectionObserver' in window){
+    observer = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting && e.target.id!=='s-quiz') markDone(e.target.id); }); },{rootMargin:'0px 0px -60% 0px'});
+    ['s-news','s-concept','s-client'].forEach(function(id){ var x=document.getElementById(id); if(x) observer.observe(x); });
+  }
+}
+
+function medal(i){ var c=['#E0A526','#9AA6B2','#C07A45'][i]; return c?'<span class="medal" style="background:'+c+'">'+(i+1)+'</span>':(i+1); }
+
+function rankAdv(){
+  var box = el('div','card'), rows = (DATA.ranking.rows||[]).slice().sort(function(a,b){return b.pts-a.pts});
+  if(!rows.length){ box.innerHTML='<div class="empty">El ranking arranca con las respuestas de hoy.<br>Mañana a las 7:30 aparece la primera tabla.</div>'; return box; }
+  var me = (store.get('me')||{}).name||'';
+  var t = '<table class="rank"><thead><tr><th>#</th><th>Asesor</th><th>Puntos</th><th>Racha</th><th>Días</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){ t += '<tr'+(me && r.name.toLowerCase()===me.toLowerCase()?' class="me"':'')+'><td class="pos">'+medal(i)+'</td><td>'+esc(r.name)+'</td><td><b>'+r.pts+'</b></td><td>'+(r.streak?('🔥 '+r.streak):'–')+'</td><td>'+(r.days||0)+'</td></tr>'; });
+  box.innerHTML = t+'</tbody></table><p class="muted" style="margin:10px 0 0">10 puntos por respuesta correcta, +5 por día perfecto. La racha cuenta días hábiles seguidos con el quiz respondido.</p>';
+  return box;
+}
+
+function rankCli(){
+  var box = el('div','card'), rows = (DATA.ranking.rows||[]).slice().sort(function(a,b){return b.pts-a.pts});
+  if(!rows.length){ box.innerHTML='<div class="empty">El ranking arranca con las respuestas de hoy.<br>Mañana a las 7:30 vas a poder ver tu posición.</div>'; return box; }
+  var html = '<p style="margin:0 0 10px">Ingresá el mail con el que te inscribiste para ver tu posición. Por privacidad, no se muestran los nombres de los demás participantes.</p>';
+  html += '<div class="form-row"><input type="email" id="rkMail" placeholder="Tu mail" value="'+esc((store.get('me')||{}).mail||'')+'"><button class="btn" id="rkBtn">Ver mi posición</button></div><div id="rkOut" style="margin-top:12px"></div>';
+  html += '<table class="rank" style="margin-top:14px"><thead><tr><th>#</th><th>Participante</th><th>Puntos</th></tr></thead><tbody>';
+  rows.slice(0,10).forEach(function(r,i){ html += '<tr data-h="'+esc(r.h)+'"><td class="pos">'+medal(i)+'</td><td class="muted">Participante anónimo</td><td><b>'+r.pts+'</b></td></tr>'; });
+  html += '</tbody></table><p class="muted" style="margin:10px 0 0">'+rows.length+' participantes · 10 puntos por respuesta correcta, +5 por día perfecto.</p>';
+  box.innerHTML = html;
+  function look(){
+    var mail = box.querySelector('#rkMail').value.trim().toLowerCase(), out = box.querySelector('#rkOut');
+    if(!mail){ out.textContent=''; return; }
+    if(!(window.crypto && crypto.subtle)){ out.textContent='Tu navegador no permite calcular la posición.'; return; }
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(DATA.ranking.salt+mail)).then(function(buf){
+      var hex = Array.prototype.map.call(new Uint8Array(buf),function(b){return ('0'+b.toString(16)).slice(-2)}).join('');
+      var pos=-1; rows.forEach(function(r,i){ if(r.h===hex) pos=i; });
+      Array.prototype.forEach.call(box.querySelectorAll('tr[data-h]'),function(tr){ tr.classList.toggle('me',tr.dataset.h===hex); if(tr.dataset.h===hex) tr.children[1].innerHTML='<b>Vos</b>'; });
+      out.innerHTML = pos<0 ? '<span class="muted">No encontramos ese mail en el ranking todavía. ¿Registraste tu puntaje con este mismo mail?</span>'
+        : '<div class="kpi"><div class="l">Tu posición</div><div class="v">'+(pos+1)+'° de '+rows.length+'</div><div class="d up">'+rows[pos].pts+' puntos'+(rows[pos].streak?(' · 🔥 racha de '+rows[pos].streak):'')+'</div></div>';
+    });
+  }
+  setTimeout(function(){ box.querySelector('#rkBtn').addEventListener('click',look); if(box.querySelector('#rkMail').value) look(); });
+  return box;
+}
+
+function chartCard(c){
+  var card = el('div','card chart-card','<h3>'+md(c.title)+'</h3>'+(c.sub?'<div class="sub">'+md(c.sub)+'</div>':''));
+  var bx = el('div','chart-box'); if(c.height) bx.style.height=c.height+'px';
+  var cv = document.createElement('canvas'); bx.appendChild(cv); card.appendChild(bx);
+  if(c.note) card.appendChild(el('div','note',md(c.note)));
+  setTimeout(function(){
+    if(typeof Chart==='undefined'){ bx.innerHTML='<div class="empty">No se pudo cargar el gráfico.</div>'; return; }
+    var palette = ['#1E88E5','#0B2545','#E0A526','#1F9D6B','#D64545'];
+    var ds = c.series.map(function(s,i){
+      var col = s.color || palette[i%palette.length];
+      var o = {label:s.name,data:s.data,borderColor:col,backgroundColor:col,borderWidth:c.type==='line'?2.5:0,pointRadius:c.type==='line'?3.5:0,pointHoverRadius:6,tension:.25,borderRadius:6,maxBarThickness:46};
+      if(c.signColors && c.type==='bar'){ o.backgroundColor = s.data.map(function(v){return v>=0?'#1F9D6B':'#D64545'}); }
+      if(c.type==='line' && c.fill){ o.fill=true; o.backgroundColor='rgba(30,136,229,.10)'; }
+      return o;
+    });
+    var unit = c.unit||'';
+    charts.push(new Chart(cv,{type:c.type,data:{labels:c.labels,datasets:ds},options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:c.horizontal?'y':'x',
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:c.series.length>1,labels:{boxWidth:12,font:{family:'Inter',size:12}}},
+        tooltip:{backgroundColor:'#0B2545',titleFont:{family:'Inter'},bodyFont:{family:'Inter'},callbacks:{label:function(x){var v=x.parsed[c.horizontal?'x':'y'];return ' '+x.dataset.label+': '+(unit==='%'?fmtPct(v):v.toLocaleString('es-AR')+(unit?' '+unit:''));}}}},
+      scales:{x:{grid:{display:!!c.horizontal,color:'#EEF2F7'},ticks:{font:{family:'Inter',size:11}}},y:{grid:{color:'#EEF2F7',display:!c.horizontal},ticks:{font:{family:'Inter',size:11}},beginAtZero:!!c.beginAtZero,suggestedMin:c.min,suggestedMax:c.max}}
+    }}));
+  });
+  return card;
+}
+
+/* ---------- Widgets ---------- */
+function widget(w){
+  if(w.type==='capweight') return wCapWeight(w);
+  return el('div','');
+}
+function wCapWeight(w){
+  var adv = w.mode!=='simple';
+  var box = el('div','widget');
+  box.innerHTML = '<h3>'+esc(w.title)+'</h3><div class="sub">'+md(w.sub)+'</div>'
+   + (adv?'<div class="ctrl"><label>Peso de las 7 grandes en el índice <output id="cwW"></output></label><input type="range" id="cwWr" min="10" max="50" step="1"></div>':'')
+   + '<div class="ctrl"><label>Cuánto hacen las 7 grandes <output id="cwA"></output></label><input type="range" id="cwAr" min="-20" max="20" step="0.5"></div>'
+   + '<div class="ctrl"><label>Cuánto hacen las otras 493 <output id="cwB"></output></label><input type="range" id="cwBr" min="-20" max="20" step="0.5"></div>'
+   + '<div class="res"><div class="box"><div class="l">'+(adv?'S&P 500 (por capitalización)':'Índice “normal” (S&P 500)')+'</div><div class="v" id="cwCap"></div><div class="bar-split" id="cwBar1"></div></div>'
+   + '<div class="box"><div class="l">'+(adv?'S&P 500 equiponderado (RSP)':'Si todas pesaran igual')+'</div><div class="v" id="cwEq"></div><div class="bar-split" id="cwBar2"></div></div></div>'
+   + '<div class="muted" style="margin-top:8px">Barra: <span style="color:#0B2545;font-weight:700">■</span> peso de las 7 grandes · <span style="color:#1E88E5;font-weight:700">■</span> peso del resto</div>'
+   + '<div class="chips" id="cwChips"></div>';
+  var st = {w:w.weight||33, a:w.a!=null?w.a:-4, b:w.b!=null?w.b:5};
+  function q(id){return box.querySelector('#'+id)}
+  function upd(){
+    var wb = st.w/100, eqw = 7/500;
+    var cap = wb*st.a + (1-wb)*st.b, eq = eqw*st.a + (1-eqw)*st.b;
+    if(adv){ q('cwWr').value=st.w; q('cwW').textContent=st.w+'%'; }
+    q('cwAr').value=st.a; q('cwA').textContent=fmtPct(st.a);
+    q('cwBr').value=st.b; q('cwB').textContent=fmtPct(st.b);
+    q('cwCap').textContent=fmtPct(cap); q('cwCap').className='v '+(cap>=0?'up':'down');
+    q('cwEq').textContent=fmtPct(eq); q('cwEq').className='v '+(eq>=0?'up':'down');
+    q('cwBar1').innerHTML='<div style="width:'+st.w+'%;background:#0B2545"></div><div style="width:'+(100-st.w)+'%;background:#1E88E5"></div>';
+    q('cwBar2').innerHTML='<div style="width:1.4%;background:#0B2545"></div><div style="width:98.6%;background:#1E88E5"></div>';
+  }
+  setTimeout(function(){
+    if(adv) q('cwWr').addEventListener('input',function(e){st.w=+e.target.value;upd()});
+    q('cwAr').addEventListener('input',function(e){st.a=+e.target.value;upd()});
+    q('cwBr').addEventListener('input',function(e){st.b=+e.target.value;upd()});
+    (w.presets||[]).forEach(function(p){
+      var c = el('button','chip',esc(p.label)); c.addEventListener('click',function(){ if(p.w!=null)st.w=p.w; st.a=p.a; st.b=p.b; upd(); });
+      q('cwChips').appendChild(c);
+    });
+    upd();
+  });
+  return box;
+}
+
+render();
+})();
+</script>
+</body>
+</html>
